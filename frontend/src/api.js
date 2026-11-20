@@ -1,5 +1,17 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? ''
 
+export const KEEP_ALIVE_INTERVAL_MS = 10 * 60 * 1000
+
+// Lightweight request that keeps the hosted backend from idling out.
+// Failures are ignored: a missed ping must never disturb the user.
+export async function pingBackend() {
+  try {
+    await fetch(`${API_BASE}/api/health`, { method: 'GET', cache: 'no-store' })
+  } catch {
+    // ignore
+  }
+}
+
 export class ValidationFailure extends Error {
   constructor(detail) {
     super(detail.message)

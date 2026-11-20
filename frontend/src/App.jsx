@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { runReconciliation, ValidationFailure } from './api'
+import { useEffect, useState } from 'react'
+import { KEEP_ALIVE_INTERVAL_MS, pingBackend, runReconciliation, ValidationFailure } from './api'
 import Breakdown from './components/Breakdown'
 import DiscrepancyTable from './components/DiscrepancyTable'
 import SummaryCards from './components/SummaryCards'
@@ -27,6 +27,13 @@ export default function App() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [activeType, setActiveType] = useState('ALL')
+
+  // Keep-alive: wake the backend on load, then ping every 10 minutes while the page is open.
+  useEffect(() => {
+    pingBackend()
+    const id = setInterval(pingBackend, KEEP_ALIVE_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [])
 
   const submit = async () => {
     setLoading(true)
